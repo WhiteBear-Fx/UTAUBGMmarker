@@ -49,7 +49,7 @@ class Oscilloscope(ttk.Frame):
 if __name__ == "__main__":
     from tkinter import filedialog
 
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # 设置进程DPI感知
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)  # 设置进程DPI感知
 
     root = tk.Tk()
     oscilloscope = Oscilloscope(root)  # 创建Oscilloscope实例
