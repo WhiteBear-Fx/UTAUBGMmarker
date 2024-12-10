@@ -40,7 +40,6 @@ class AudioLoader:
         """
         self.max_audio_data = None  # 存储可能的最大音频数据
         self.audio_data = None  # 存储音频数据
-        self.frame_rate = None  # 存储采样率
         self.n_channels = None  # 存储声道数
 
     def load_audio(self, file_path, max_size):
@@ -55,7 +54,6 @@ class AudioLoader:
         with wave.open(file_path, 'r') as wav_file:
             self.n_channels = wav_file.getnchannels()  # 获取声道数
             sample_width = wav_file.getsampwidth()  # 获取采样宽度（字节）
-            original_frame_rate = wav_file.getframerate()  # 获取原始采样率
             n_frames = wav_file.getnframes()  # 获取帧数
 
             raw_data = wav_file.readframes(n_frames)  # 读取所有帧的数据
@@ -100,7 +98,7 @@ class AudioLoader:
         if original_length <= target_length:
             return np.array(audio_data)
 
-        # 计算浮点数的下采样因子
+        # 计算浮点数类型的下采样因子
         downsampling_factor = original_length / target_length
 
         # 初始化结果数组

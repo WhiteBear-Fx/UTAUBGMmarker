@@ -77,6 +77,7 @@ class Oscilloscope(ttk.Frame):
             # 使用处理好的波形数据更新示波器显示
             self.oscilloscope.draw_waveform(waveform_top, waveform_bottom)
 
+
 # 使用示例
 if __name__ == "__main__":
     from tkinter import filedialog
