@@ -4,7 +4,6 @@ from load_audio import AudioLoader
 import tkinter as tk
 from tkinter import ttk
 import ctypes
-import numpy as np
 
 
 class Oscilloscope(ttk.Frame):
