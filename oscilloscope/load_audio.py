@@ -62,12 +62,8 @@ class AudioLoader:
             audio_data = self.convert_raw_to_numpy(raw_data, sample_width)  # 将原始数据转换为numpy数组
 
             # 动态计算下采样因子
-            downsampling_factor = max(1, n_frames // max_size)
-            if downsampling_factor > 1:
-                audio_data = self.downsample(audio_data, downsampling_factor)
-                self.frame_rate = original_frame_rate // downsampling_factor  # 更新采样率
-            else:
-                self.frame_rate = original_frame_rate
+            if n_frames > max_size:
+                audio_data = self.downsample(audio_data, max_size)
 
             if self.n_channels == 2:
                 average_audio_data = self.compute_stereo_average(audio_data)  # 计算立体声平均值
@@ -92,17 +88,32 @@ class AudioLoader:
         return audio_data
 
     @staticmethod
-    def downsample(audio_data, downsampling_factor):
+    def downsample(audio_data, target_length):
         """
-        对音频数据进行下采样。
+        对音频数据进行下采样，保证输出长度为 target_length。
 
         :param audio_data: 音频数据数组。
-        :param downsampling_factor: 下采样因子。
+        :param target_length: 目标长度。
         :return: 下采样的音频数据数组。
         """
+        original_length = len(audio_data)
+        if original_length <= target_length:
+            return np.array(audio_data)
+
+        # 计算浮点数的下采样因子
+        downsampling_factor = original_length / target_length
+
+        # 初始化结果数组
         downsampled_data = []
-        for i in range(0, len(audio_data), downsampling_factor):
-            window = audio_data[i:i + downsampling_factor]
+
+        # 计算每个窗口的起点索引
+        indices = np.arange(0, original_length, downsampling_factor)
+
+        for i in range(target_length):
+            start_index = int(np.floor(indices[i]))
+            end_index = int(np.ceil(indices[i + 1])) if i + 1 < len(indices) else original_length
+
+            window = audio_data[start_index:end_index]
             if len(window) > 0:
                 extrema = np.max(np.abs(window))
                 index = np.where(np.abs(window) == extrema)[0][0]
@@ -147,7 +158,9 @@ class AudioLoader:
         :param control_size: 控件实际大小（像素数），应小于 max_size。
         :return: 更新后的归一化的音频数据数组。
         """
-        # 动态计算新的下采样因子
-        downsampling_factor = max(1, len(self.max_audio_data) // control_size)
-        self.audio_data = self.downsample(self.max_audio_data, downsampling_factor)
+        if len(self.max_audio_data) > control_size:
+            self.audio_data = self.downsample(self.max_audio_data, control_size)
+        else:
+            # 暂时这样写，实际上这里应该报错
+            self.audio_data = self.max_audio_data
         return self.audio_data

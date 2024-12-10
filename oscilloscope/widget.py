@@ -23,14 +23,16 @@ class WaveformCanvas(tk.Canvas):
         :return: 宽度、高度和垂直中心位置的元组
         """
         self.update_idletasks()  # 更新待处理的任务
-        return self.winfo_width(), self.winfo_height(), self.winfo_height() // 2
+        return self.winfo_width(), self.winfo_height()
 
-    def draw_waveform(self):
+    def draw_waveform(self, waveform_y1, waveform_y2):
         """
         绘制音频波形。目前该方法为空，需要实现具体的绘图逻辑。
         """
-        self.delete("all")  # 清除画布上的所有内容
-        pass
+        self.delete("waveform")  # 清除画布上的波形内容
+        if len(waveform_y1) == len(waveform_y2):
+            for i in range(len(waveform_y1)):
+                self.create_rectangle(i, waveform_y1[i], i, waveform_y2[i], fill="#000", tags="waveform")
 
     def on_resize(self):
         """
