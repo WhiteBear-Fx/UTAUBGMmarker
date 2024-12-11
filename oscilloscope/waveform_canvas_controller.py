@@ -38,13 +38,13 @@ class WaveformCanvasController:
             center_line = canvas_height // 2
 
             # 将音频数据映射到画布的高度范围内，使用 NumPy 向量化运算提高效率
-            # 假设 audio_samples 的范围是 [-1, 1]，我们需要将其缩放到画布高度的一半
+            # audio_samples 的范围是 [-1, 1]，我们需要将其翻转并缩放到画布高度的一半
             scale_factor = (canvas_height / 2)
-            waveform_y = (self.audio_data * scale_factor).astype(int) + center_line
+            waveform_y = center_line - (self.audio_data * scale_factor).astype(int)
 
             # 创建两个列表来分别存储波形的上下部分 Y 值
-            waveform_top = np.clip(waveform_y, center_line, canvas_height - 1)  # 限制在画布下半部
-            waveform_bottom = np.clip(waveform_y, 0, center_line)  # 限制在画布上半部
+            waveform_top = np.clip(waveform_y, 0, center_line)  # 限制在画布上半部
+            waveform_bottom = np.clip(waveform_y, center_line, canvas_height - 1)  # 限制在画布下半部
 
             # 使用处理好的波形数据更新示波器显示
             self.view.draw_waveform(waveform_top, waveform_bottom)

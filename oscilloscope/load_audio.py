@@ -15,6 +15,7 @@ class AudioLoader:
         audio_data (np.ndarray): 当前控件大小的归一化音频数据。
         frame_rate (int): 音频的采样率。
         n_channels (int): 音频的声道数。
+        time (float): 音频的总时长（秒）。
 
     方法:
         load_audio(file_path, max_size):
@@ -32,15 +33,24 @@ class AudioLoader:
 
             返回:
                 np.ndarray: 更新后的归一化的音频数据数组。
+
+        get_duration():
+            计算音频的总时长（秒）。
+
+            返回:
+                float: 音频的总时长（秒）。
     """
 
     def __init__(self):
         """
         初始化AudioLoader类实例。
         """
+        self.rate = None  # 存储采样率
+        self.frames = None  # 存储帧数
         self.max_audio_data = None  # 存储可能的最大音频数据
         self.audio_data = None  # 存储音频数据
         self.n_channels = None  # 存储声道数
+        self.time = None  # 存储音频的总时长（秒）
 
     def load_audio(self, file_path, max_size):
         """
@@ -54,13 +64,16 @@ class AudioLoader:
         with wave.open(file_path, 'r') as wav_file:
             self.n_channels = wav_file.getnchannels()  # 获取声道数
             sample_width = wav_file.getsampwidth()  # 获取采样宽度（字节）
-            n_frames = wav_file.getnframes()  # 获取帧数
+            self.frames = wav_file.getnframes()  # 获取帧数
+            self.rate = wav_file.getframerate()  # 获取采样率
 
-            raw_data = wav_file.readframes(n_frames)  # 读取所有帧的数据
+            self.get_duration()  # 计算音频的总时长（秒）
+
+            raw_data = wav_file.readframes(self.frames)  # 读取所有帧的数据
             audio_data = self.convert_raw_to_numpy(raw_data, sample_width)  # 将原始数据转换为numpy数组
 
             # 动态计算下采样因子
-            if n_frames > max_size:
+            if self.frames > max_size:
                 audio_data = self.downsample(audio_data, max_size)
 
             if self.n_channels == 2:
@@ -69,6 +82,11 @@ class AudioLoader:
                 average_audio_data = audio_data  # 单声道直接使用原始数据
 
             self.max_audio_data = self.normalize_audio(average_audio_data, sample_width)  # 归一化音频数据
+
+    def get_duration(self):
+        # 计算时长
+        self.time = self.frames / float(self.rate)
+        return self.time
 
     @staticmethod
     def convert_raw_to_numpy(raw_data, sample_width):

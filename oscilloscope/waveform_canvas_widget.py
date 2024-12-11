@@ -12,7 +12,7 @@ class WaveformCanvas(tk.Canvas):
 
         :param master: 父窗口或框架
         """
-        super().__init__(master, background="#4b704c")  # 设置背景颜色
+        super().__init__(master, background="#4b704c", bd=0, highlightthickness=0)  # 设置背景颜色
         self.resize_timer = None  # 存储定时器 ID
         self.controller = controller  # 存储控制器实例
         self.last_size = (self.winfo_width(), self.winfo_height())  # 存储上一次的画布大小
@@ -42,7 +42,7 @@ class WaveformCanvas(tk.Canvas):
         :param waveform_y1: 波形的上半部分 Y 坐标列表
         :param waveform_y2: 波形的下半部分 Y 坐标列表
         """
-        self.delete("waveform")  # 清除画布上的波形内容
+        self.delete("waveform", "resize_info")  # 清除画布上的波形内容
         if len(waveform_y1) == len(waveform_y2):
             for i in range(len(waveform_y1)):
                 self.create_rectangle(i, waveform_y1[i], i, waveform_y2[i], fill="#000", tags="waveform")
@@ -56,7 +56,7 @@ class WaveformCanvas(tk.Canvas):
         x = self.winfo_width() // 2
         y = self.winfo_height() // 2
         self.delete("resize_info")  # 清除画布上的调整信息
-        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill="#000", tags="resize_info", font=("Arial", 15))
+        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill="#000", tags="resize_info", font=("Helvetica", 15))
 
     def on_resize(self, event):
         """
