@@ -70,26 +70,27 @@ class AudioLoader:
             self.get_duration()  # 计算音频的总时长（秒）
 
             raw_data = wav_file.readframes(self.frames)  # 读取所有帧的数据
-            audio_data = self.convert_raw_to_numpy(raw_data, sample_width)  # 将原始数据转换为numpy数组
+            audio_data = self._convert_raw_to_numpy(raw_data, sample_width)  # 将原始数据转换为numpy数组
 
             # 动态计算下采样因子
             if self.frames > max_size:
-                audio_data = self.downsample(audio_data, max_size)
+                audio_data = self._downsample(audio_data, max_size)
 
             if self.n_channels == 2:
-                average_audio_data = self.compute_stereo_average(audio_data)  # 计算立体声平均值
+                average_audio_data = self._compute_stereo_average(audio_data)  # 计算立体声平均值
             else:
                 average_audio_data = audio_data  # 单声道直接使用原始数据
 
-            self.max_audio_data = self.normalize_audio(average_audio_data, sample_width)  # 归一化音频数据
+            self.max_audio_data = self._normalize_audio(average_audio_data, sample_width)  # 归一化音频数据
 
     def get_duration(self):
-        # 计算时长
-        self.time = self.frames / float(self.rate)
-        return self.time
+        if self.rate is not None:
+            # 计算时长
+            self.time = self.frames / float(self.rate)
+            return self.time
 
     @staticmethod
-    def convert_raw_to_numpy(raw_data, sample_width):
+    def _convert_raw_to_numpy(raw_data, sample_width):
         """
         将原始字节数据转换为numpy数组。
 
@@ -104,7 +105,7 @@ class AudioLoader:
         return audio_data
 
     @staticmethod
-    def downsample(audio_data, target_length):
+    def _downsample(audio_data, target_length):
         """
         对音频数据进行下采样，保证输出长度为 target_length。
         每个窗口取一个正值最大和一个负值最小的点。
@@ -161,7 +162,7 @@ class AudioLoader:
         return np.array(downsampled_data[:target_length])  # 确保返回的数组长度等于 target_length
 
     @staticmethod
-    def compute_stereo_average(audio_data):
+    def _compute_stereo_average(audio_data):
         """
         计算立体声音频数据的平均值。
 
@@ -174,7 +175,7 @@ class AudioLoader:
         return average_audio_data
 
     @staticmethod
-    def normalize_audio(audio_data, sample_width):
+    def _normalize_audio(audio_data, sample_width):
         """
         归一化音频数据。
 
@@ -198,7 +199,7 @@ class AudioLoader:
         :return: 更新后的归一化的音频数据数组。
         """
         if len(self.max_audio_data) > control_size:
-            self.audio_data = self.downsample(self.max_audio_data, control_size)
+            self.audio_data = self._downsample(self.max_audio_data, control_size)
         else:
             # 暂时这样写，实际上这里应该报错
             self.audio_data = self.max_audio_data

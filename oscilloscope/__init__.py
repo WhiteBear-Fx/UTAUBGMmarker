@@ -1,1 +1,1 @@
-from oscilloscope_main import Oscilloscope
+from .oscilloscope_main import Oscilloscope

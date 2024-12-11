@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-class WaveformCanvas(tk.Canvas):
+class WaveformCanvasWidget(tk.Canvas):
     """
     WaveformCanvas 类继承自 tk.Canvas，用于绘制音频波形。
     """
@@ -27,15 +27,7 @@ class WaveformCanvas(tk.Canvas):
         self.update_idletasks()  # 更新待处理的任务
         return self.winfo_width(), self.winfo_height()
 
-    def get_max_width(self):
-        """
-        获取波形可能显示的最大宽度（屏幕宽度）。
-
-        :return: 最大尺宽度整数值
-        """
-        return self.winfo_screenwidth()
-
-    def draw_waveform(self, waveform_y1, waveform_y2):
+    def show_waveform(self, waveform_y1, waveform_y2):
         """
         绘制音频波形。
 

@@ -1,8 +1,6 @@
-from waveform_canvas_widget import WaveformCanvas
-from waveform_canvas_controller import WaveformCanvasController
-from load_audio import AudioLoader
-
-from ruler_widget import RulerWidget
+from waveform_canvas import WaveformCanvas
+from ruler import Ruler
+import audio_model
 
 import tkinter as tk
 from tkinter import ttk
@@ -22,15 +20,14 @@ class Oscilloscope(ttk.Frame):
         :param master: 父窗口或框架
         """
         super().__init__(master)
-        self.audio_loader = AudioLoader()  # 初始化音频加载器
-        self.waveform_canvas_controller = WaveformCanvasController(self.audio_loader)  # 初始化控制器并将其音频加载器传入作为模型
-        self.waveform_canvas = WaveformCanvas(self, self.waveform_canvas_controller)  # 初始化波形画布
-        self.waveform_canvas_controller.view = self.waveform_canvas  # 将控制器视图指向波形画布
+        self.audio_loader = audio_model.AudioLoader()  # 初始化音频加载器
+
+        self.waveform_canvas = WaveformCanvas(self, self.audio_loader)  # 初始化波形画布控件
         self.columnconfigure(0, weight=1)  # 配置第一列权重
-        self.rowconfigure(1, weight=1)  # 配置第一行权重
+        self.rowconfigure(1, weight=1)  # 配置第二行权重
         self.waveform_canvas.grid(row=1, column=0, sticky="news")  # 将波形画布放置在网格中
 
-        self.ruler_widget = RulerWidget(self)  # 初始化标尺控件
+        self.ruler_widget = Ruler(self, self.audio_loader)  # 初始化标尺控件
         self.ruler_widget.grid(row=0, column=0, sticky="news")  # 将标尺控件放置在网格中
 
     def open_file(self, file_path):
@@ -40,8 +37,10 @@ class Oscilloscope(ttk.Frame):
 
         :param file_path: 音频文件的路径
         """
-        self.waveform_canvas_controller.open_file(file_path)  # 调用控制器的 open_file 方法打开文件
-        self.ruler_widget.draw_ruler(self.audio_loader.get_duration())  # 调用ruler_widget的draw_ruler方法绘制标尺，传入音频的总时长
+        max_width = self.winfo_screenwidth()  # 获取屏幕最大宽度
+        self.audio_loader.load_audio(file_path, max_width)  # 加载音频文件，由于模型公用，后续其他控件不用反复读取音频
+        self.waveform_canvas.draw_waveform()  # 调用波形展示器的 open_file 方法打开文件
+        self.ruler_widget.draw_ruler()  # 调用ruler_widget的draw_ruler方法绘制标尺
 
 
 # 使用示例

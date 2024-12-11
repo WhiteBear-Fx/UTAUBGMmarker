@@ -1,0 +1,1 @@
+from .waveform_canvas_main import WaveformCanvas
