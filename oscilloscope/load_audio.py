@@ -89,17 +89,22 @@ class AudioLoader:
     def downsample(audio_data, target_length):
         """
         对音频数据进行下采样，保证输出长度为 target_length。
+        每个窗口取一个正值最大和一个负值最小的点。
 
         :param audio_data: 音频数据数组。
         :param target_length: 目标长度。
         :return: 下采样的音频数据数组。
         """
         original_length = len(audio_data)
+
         if original_length <= target_length:
             return np.array(audio_data)
 
+        # 因为每个窗口要取两个点，所以实际窗口数量应该是 target_length 的一半
+        effective_target_length = target_length // 2
+
         # 计算浮点数类型的下采样因子
-        downsampling_factor = original_length / target_length
+        downsampling_factor = original_length / effective_target_length
 
         # 初始化结果数组
         downsampled_data = []
@@ -107,17 +112,35 @@ class AudioLoader:
         # 计算每个窗口的起点索引
         indices = np.arange(0, original_length, downsampling_factor)
 
-        for i in range(target_length):
+        for i in range(effective_target_length):
             start_index = int(np.floor(indices[i]))
             end_index = int(np.ceil(indices[i + 1])) if i + 1 < len(indices) else original_length
 
             window = audio_data[start_index:end_index]
-            if len(window) > 0:
-                extrema = np.max(np.abs(window))
-                index = np.where(np.abs(window) == extrema)[0][0]
-                downsampled_data.append(window[index])
 
-        return np.array(downsampled_data)
+            if len(window) > 0:
+                # 分别获取窗口中的最大正值和最小负值
+                max_val = np.max(window)
+                min_val = np.min(window)
+
+                # 将这两个值添加到结果数组中
+                downsampled_data.extend([max_val, min_val])
+            else:
+                # 如果窗口为空，可以考虑添加上一个窗口的最大值和最小值，或者保持不变
+                # 这里简单处理为添加两个默认值，比如0
+                downsampled_data.extend([0, 0])
+
+        # 如果目标长度是奇数，则最后一个窗口只添加一个值（可以是最大值或最小值）
+        if target_length % 2 != 0:
+            if len(downsampled_data) >= 2:
+                # 使用最后已知的最大值或最小值作为填充
+                last_known_value = downsampled_data[-2] if downsampled_data[-1] == 0 else downsampled_data[-1]
+                downsampled_data.append(last_known_value)
+            else:
+                # 如果downsampled_data不足两个元素，使用0作为默认值
+                downsampled_data.append(0)
+
+        return np.array(downsampled_data[:target_length])  # 确保返回的数组长度等于 target_length
 
     @staticmethod
     def compute_stereo_average(audio_data):
