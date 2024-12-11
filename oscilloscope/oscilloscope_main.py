@@ -9,8 +9,8 @@ import ctypes
 
 class Oscilloscope(ttk.Frame):
     """
-    Oscilloscope 类该控件的主容器，控制器、模型和视图在此处组合。
-    该类还负责管理控件的布局。
+    Oscilloscope 的主要类，该控件的子容器在此处被放置，并封装了方法。
+    使用该控件应实例化该类。
     """
 
     def __init__(self, master):
@@ -33,8 +33,6 @@ class Oscilloscope(ttk.Frame):
     def open_file(self, file_path):
         """
         打开指定路径的音频文件。
-        本方法只是代理，实际的文件打开操作由控制器处理。
-
         :param file_path: 音频文件的路径
         """
         max_width = self.winfo_screenwidth()  # 获取屏幕最大宽度
