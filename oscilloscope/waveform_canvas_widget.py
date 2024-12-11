@@ -1,4 +1,3 @@
-from __future__ import annotations  # 确保所有类型注解被当作字符串处理
 import tkinter as tk
 
 
@@ -13,7 +12,7 @@ class WaveformCanvas(tk.Canvas):
 
         :param master: 父窗口或框架
         """
-        super().__init__(master, background="#385434")  # 设置背景颜色
+        super().__init__(master, background="#4b704c")  # 设置背景颜色
         self.resize_timer = None  # 存储定时器 ID
         self.controller = controller  # 存储控制器实例
         self.last_size = (self.winfo_width(), self.winfo_height())  # 存储上一次的画布大小
