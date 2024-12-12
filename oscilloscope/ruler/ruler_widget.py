@@ -24,7 +24,7 @@ class RulerWidget(tk.Canvas):
             # 长刻度线
             self.create_line(l_interval_x_list[i], 0, l_interval_x_list[i], 20, fill="#4b704c", width=scale_width + 2)
             # 刻度数值
-            self.create_text(l_interval_x_list[i], 30, text=f"{l_interval_text_list[i]}s",
+            self.create_text(l_interval_x_list[i], 30, text=f"{l_interval_text_list[i]}",
                              fill="#4b704c", font=("Helvetica", 10))
 
     def draw_ruler_s(self, s_interval_x_list, scale_width):
