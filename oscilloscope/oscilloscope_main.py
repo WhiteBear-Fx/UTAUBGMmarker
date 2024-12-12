@@ -4,7 +4,6 @@ import audio_model
 
 import tkinter as tk
 from tkinter import ttk
-import ctypes
 
 
 class Oscilloscope(ttk.Frame):
@@ -44,8 +43,6 @@ class Oscilloscope(ttk.Frame):
 # 使用示例
 if __name__ == "__main__":
     from tkinter import filedialog
-
-    ctypes.windll.shcore.SetProcessDpiAwareness(1)  # 设置进程DPI感知
 
     root = tk.Tk()
     oscilloscope = Oscilloscope(root)  # 创建Oscilloscope实例
