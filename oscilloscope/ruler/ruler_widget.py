@@ -12,7 +12,7 @@ class RulerWidget(tk.Canvas):
 
         :param master: 父窗口或框架
         """
-        super().__init__(master, bg="#000", bd=0, highlightthickness=0, height=60)
+        super().__init__(master, bg="#000", bd=0, highlightthickness=0, height=45)
         self.controller = controller
         # 绑定 <Configure> 事件到 on_resize 方法，以便在窗口大小改变时重新绘制标尺
         self.bind("<Configure>", self.on_resize)
