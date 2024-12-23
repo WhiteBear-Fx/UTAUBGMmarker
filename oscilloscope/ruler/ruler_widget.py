@@ -12,7 +12,7 @@ class RulerWidget(tk.Canvas):
 
         :param master: 父窗口或框架
         """
-        super().__init__(master, bg="#000", bd=0, highlightthickness=0, height=40)
+        super().__init__(master, bg="#000", bd=0, highlightthickness=0, height=60)
         self.controller = controller
         # 绑定 <Configure> 事件到 on_resize 方法，以便在窗口大小改变时重新绘制标尺
         self.bind("<Configure>", self.on_resize)
@@ -22,9 +22,9 @@ class RulerWidget(tk.Canvas):
         # 绘制大刻度
         for i in range(len(l_interval_x_list)):
             # 长刻度线
-            self.create_line(l_interval_x_list[i], 0, l_interval_x_list[i], 15, fill="#4b704c", width=scale_width + 2)
+            self.create_line(l_interval_x_list[i], 0, l_interval_x_list[i], 20, fill="#4b704c", width=scale_width + 2)
             # 刻度数值
-            self.create_text(l_interval_x_list[i], 25, text=f"{l_interval_text_list[i]}",
+            self.create_text(l_interval_x_list[i], 30, text=f"{l_interval_text_list[i]}",
                              fill="#4b704c", font=("Helvetica", 10))
 
     def draw_ruler_s(self, s_interval_x_list, scale_width):
