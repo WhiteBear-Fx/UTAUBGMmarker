@@ -115,7 +115,7 @@ class MarkManage:
         :param position: 标记的位置
         """
         mark_group = []  # 使用局部变量来存储当前创建的一组标记
-        for i, w in enumerate(widget):
+        for w in widget:
             mark = Mark(w[0], color, w[1])
             mark.set_position(position)
             mark.set_button_motion(self.change_position, self.mark_id, "motion")
@@ -229,8 +229,9 @@ if __name__ == "__main__":
             oscilloscope.create_mark("#fff", 10)  # 创建白色标记
             oscilloscope.create_mark("#f00", 10, 0.5)  # 创建红色标记，初始位置为音频的50%
             oscilloscope.set_mark_position(0, 1)  # 移动第一个标记到末尾
-            oscilloscope.set_mark_motion_callback(0, print_info,"id = 0")
+            oscilloscope.set_mark_motion_callback(0, print_info, "id = 0")
             oscilloscope.set_mark_motion_callback(1, print_info, "id = 1")
+
 
     def print_info(p, info):
         print(f"{p:.2f} {info}")

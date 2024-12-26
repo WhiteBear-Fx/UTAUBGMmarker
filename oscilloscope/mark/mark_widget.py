@@ -22,7 +22,7 @@ class MarkWidget(tk.Canvas):
         self.release_callback = None
         self.bind("<ButtonRelease-1>", self._button_release)
         self.bind("<B1-Motion>", self._button_motion)
-        self.master.bind("<Configure>", self._on_master_configure)
+        self.master.bind("<Configure>", self._on_master_configure, add="+")
 
         self.master_last_size = None
 
@@ -62,6 +62,7 @@ class MarkWidget(tk.Canvas):
             ratio (float): 新的位置比例，范围是 [0.0, 1.0]。
         """
         self.master.update_idletasks()
+        self.update_idletasks()
 
         self.mark_position_now = self.master.winfo_width() * ratio - self.winfo_width() / 2
         self.mark_position_proportion = max(self.mark_position_star, min(self.mark_position_end, self.mark_position_now
