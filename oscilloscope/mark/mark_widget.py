@@ -11,7 +11,7 @@ class MarkWidget(tk.Canvas):
         """
         初始化 MarkWidget 实例。
 
-        参数:
+        param:
             master (tk.Widget): 父容器，通常是 Tkinter 的窗口或其他小部件。
             color (str): 小部件的背景颜色，使用 Tkinter 支持的颜色字符串。
             width (int): 小部件的宽度，以像素为单位。
@@ -41,7 +41,7 @@ class MarkWidget(tk.Canvas):
         """
         根据鼠标事件更新小部件的位置比例，并重新定位小部件。
 
-        参数:
+        param:
             event (tk.Event): 鼠标事件对象，包含鼠标当前位置信息。
         """
         self.master.update_idletasks()
@@ -58,7 +58,7 @@ class MarkWidget(tk.Canvas):
         """
         设置小部件的位置为指定的比例值。
 
-        参数:
+        param:
             ratio (float): 新的位置比例，范围是 [0.0, 1.0]。
         """
         self.master.update_idletasks()
@@ -75,7 +75,7 @@ class MarkWidget(tk.Canvas):
         """
         当父容器大小改变时更新小部件的位置和边界条件。
 
-        参数:
+        param:
             event (tk.Event): 配置事件对象，包含父容器的新尺寸信息。
         """
         if (event.width, event.height) != self.master_last_size:
@@ -88,41 +88,49 @@ class MarkWidget(tk.Canvas):
         """
         处理鼠标左键释放事件，更新位置并触发回调函数。
 
-        参数:
+        param:
             event (tk.Event): 鼠标事件对象。
         """
         self._get_position_ratio(event)
-        if callable(self.release_callback):
-            self.release_callback(self.mark_position)
+        callback, *args = self.release_callback
+        if callable(callback):
+            callback(self.mark_position, *args)
 
     def _button_motion(self, event):
         """
         处理按住鼠标左键并移动事件，更新位置并触发回调函数。
 
-        参数:
+        param:
             event (tk.Event): 鼠标事件对象。
         """
         self._get_position_ratio(event)
-        if callable(self.motion_callback):
-            self.motion_callback(self.mark_position)
+        callback, *args = self.motion_callback
+        if callable(callback):
+            callback(self.mark_position, *args)
 
-    def set_button_release(self, callback):
+    def set_button_release(self, callback, *args):
         """
         设置当鼠标左键释放时调用的回调函数。
 
-        参数:
-            callback (callable): 回调函数，接受一个参数，即当前的比例位置。
+        :param
+            callback (Callable): 回调函数，接受一个参数，即当前的比例位置。
+            *args: 其他传递给回调函数的参数。
         """
-        self.release_callback = callback
+        if not callable(callback):
+            raise TypeError("The provided callback is not callable.")
+        self.release_callback = [callback, *args]
 
-    def set_button_motion(self, callback):
+    def set_button_motion(self, callback, *args):
         """
         设置当按住鼠标左键并移动时调用的回调函数。
 
-        参数:
-            callback (callable): 回调函数，接受一个参数，即当前的比例位置。
+        :param
+            callback (Callable): 回调函数，接受一个参数，即当前的比例位置，浮点数，取值范围[0，1]。
+            *args: 其他传递给回调函数的参数。
         """
-        self.motion_callback = callback
+        if not callable(callback):
+            raise TypeError("The provided callback is not callable.")
+        self.motion_callback = [callback, *args]
 
 
 # 使用示例
