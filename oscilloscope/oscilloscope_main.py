@@ -10,73 +10,81 @@ from tkinter import ttk
 
 class Oscilloscope(ttk.Frame):
     """
-    Oscilloscope 的主要类，该控件的子容器在此处被放置，并封装了方法。
-    使用该控件应实例化该类。
-
-    该类负责管理波形画布（WaveformCanvas）、标尺（Ruler）和标记管理器（MarkManage），
-    并提供加载音频文件、创建标记和设置标记事件回调的方法。
+    Oscilloscope的主要类，负责管理波形画布、标尺和标记管理器，
+    并提供加载音频文件、创建和管理标记的方法。
     """
 
-    def __init__(self, master):
+    def __init__(self, master=None):
         """
-        初始化 Oscilloscope 实例，包括初始化标签管理器、音频加载器，
-        波形画布控件和标尺控件，并将它们放置在网格布局中。
+        初始化Oscilloscope实例，设置布局并初始化子组件。
 
-        :param master: 父窗口或框架
+        :param master: 父窗口或框架，默认为None
         """
         super().__init__(master)
-        self.mark_manage = MarkManage()  # 标记管理器，用于管理和创建时间轴上的标记
-        self.audio_loader = audio_model.AudioLoader()  # 音频加载器，用于加载音频数据
+        self.mark_manage = MarkManage()
+        self.audio_loader = audio_model.AudioLoader()
 
-        self.waveform_canvas = WaveformCanvas(self, self.audio_loader)  # 创建波形画布控件实例
-        self.waveform_canvas.grid(row=1, column=0, sticky="news")  # 将波形画布放置在网格中
+        # 创建并放置波形画布和标尺控件
+        self.waveform_canvas = WaveformCanvas(self, self.audio_loader)
+        self.waveform_canvas.grid(row=1, column=0, sticky="news")
 
-        self.ruler_widget = Ruler(self, self.audio_loader)  # 创建标尺控件实例
-        self.ruler_widget.grid(row=0, column=0, sticky="news")  # 将标尺控件放置在网格中
+        self.ruler_widget = Ruler(self, self.audio_loader)
+        self.ruler_widget.grid(row=0, column=0, sticky="news")
 
-        self.columnconfigure(0, weight=1)  # 设置列权重，使组件可以随着窗口大小调整
-        self.rowconfigure(1, weight=1)  # 设置行权重，使组件可以随着窗口大小调整
+        # 设置网格布局权重以适应窗口大小变化
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
 
     def open_file(self, file_path):
         """
-        打开指定路径的音频文件并加载到音频加载器中。
-        更新波形画布和标尺以反映新加载的音频数据。
+        加载指定路径的音频文件，并更新波形画布和标尺显示。
 
         :param file_path: 音频文件的路径
         """
         max_width = self.winfo_screenwidth()  # 获取屏幕最大宽度
-        self.audio_loader.load_audio(file_path, max_width)  # 加载音频文件
-        self.waveform_canvas.draw_waveform()  # 在波形画布上绘制波形
-        self.ruler_widget.draw_ruler()  # 绘制标尺
+        self.audio_loader.load_audio(file_path, max_width)
+        self.waveform_canvas.draw_waveform()
+        self.ruler_widget.draw_ruler()
 
-    def create_mark(self, color: str, width: int = 10, position: float = 0):
+    def create_mark(self, color: str, width: int = 10, position: float = 0.0):
         """
-        创建一个新的标记，并添加到波形画布和标尺上。
+        在指定位置创建一个新的标记。
 
         :param color: 标记的颜色
         :param width: 标记的宽度，默认为10像素
-        :param position: 标记的位置，默认为0秒
+        :param position: 标记的位置，默认为0秒（音频起始）
         """
-        ruler_mark_width = width
-        waveform_canvas_mark_width = max(2, width // 10)
+        if self.audio_loader.audio_data is not None:
+            ruler_mark_width = width
+            waveform_canvas_mark_width = max(2, width // 10)
 
-        self.mark_manage.create_mark(
-            [(self.ruler_widget, ruler_mark_width),
-             (self.waveform_canvas, waveform_canvas_mark_width)],
-            color, position)
+            self.mark_manage.create_mark(
+                [(self.ruler_widget, ruler_mark_width),
+                 (self.waveform_canvas, waveform_canvas_mark_width)],
+                color, position)
+        else:
+            raise FileNotFoundError("创建标记出错，当前没有打开音频文件")
+
+    def del_mark(self, mark_id):
+        """
+        删除指定ID的标记。
+
+        :param mark_id: 要删除的标记ID
+        """
+        self.mark_manage.del_mark(mark_id)
 
     def set_mark_position(self, mark_id, position):
         """
-        设置指定ID的标记的新位置。
+        更新指定ID的标记的位置。
 
-        :param mark_id: 要移动的标记的ID
+        :param mark_id: 要更新位置的标记ID
         :param position: 新的位置
         """
         self.mark_manage.set_mark_position(mark_id, position)
 
     def set_mark_motion_callback(self, mark_id, callback, *args):
         """
-        设置当拖动标记时触发的回调函数，回调函数第一个参数为标尺位置比例，范围[1, 0]。
+        设置拖动标记时触发的回调函数。
 
         :param mark_id: 关联的标记ID
         :param callback: 回调函数
@@ -86,7 +94,7 @@ class Oscilloscope(ttk.Frame):
 
     def set_mark_release_callback(self, mark_id, callback, *args):
         """
-        设置当释放标记时触发的回调函数，回调函数第一个参数为标尺位置比例，范围[1, 0]。
+        设置释放标记时触发的回调函数。
 
         :param mark_id: 关联的标记ID
         :param callback: 回调函数
@@ -96,9 +104,7 @@ class Oscilloscope(ttk.Frame):
 
 
 class MarkManage:
-    """
-    标记管理器类，用于管理所有标记的创建、位置更新和事件绑定。
-    """
+    """标记管理器类，用于管理所有标记的创建、位置更新和事件绑定。"""
 
     def __init__(self):
         self.mark_dict = {}
@@ -106,16 +112,16 @@ class MarkManage:
         self.mark_motion_callback = {}
         self.mark_id = 0
 
-    def create_mark(self, widget: list, color: str, position: float):
+    def create_mark(self, widget_list: list, color: str, position: float):
         """
-        在提供的小部件列表中创建一个标记。
+        创建一个新的标记，并将其添加到提供的小部件中。
 
-        :param widget: 包含要添加标记的小部件及其宽度的列表
+        :param widget_list: 包含要添加标记的小部件及其宽度的列表
         :param color: 标记的颜色
         :param position: 标记的位置
         """
-        mark_group = []  # 使用局部变量来存储当前创建的一组标记
-        for w in widget:
+        mark_group = []
+        for w in widget_list:
             mark = Mark(w[0], color, w[1])
             mark.set_position(position)
             mark.set_button_motion(self.change_position, self.mark_id, "motion")
@@ -123,6 +129,23 @@ class MarkManage:
             mark_group.append(mark)
         self.mark_dict[self.mark_id] = mark_group
         self.mark_id += 1
+
+    def del_mark(self, mark_id):
+        """
+        销毁并移除指定ID的标记。
+
+        :param mark_id: 要销毁的标记ID
+        """
+        if mark_id in self.mark_dict:
+            for m in self.mark_dict[mark_id]:
+                m.destroy()
+            del self.mark_dict[mark_id]
+            if mark_id in self.mark_motion_callback:
+                del self.mark_motion_callback[mark_id]
+            if mark_id in self.mark_release_callback:
+                del self.mark_release_callback[mark_id]
+        else:
+            raise IndexError("尝试销毁不存在的标记：mark_id 不存在！")
 
     def set_mark_position(self, mark_id, position):
         """
@@ -135,11 +158,11 @@ class MarkManage:
             for m in self.mark_dict[mark_id]:
                 m.set_position(position)
         else:
-            raise IndexError("mark_id不存在！")
+            raise IndexError("尝试设置位置时出错，mark_id不存在！")
 
     def set_mark_motion_callback(self, mark_id, callback, *args):
         """
-        设置当拖动指定ID的标记时触发的回调函数。
+        设置拖动标记时触发的回调函数。
 
         :param mark_id: 关联的标记ID
         :param callback: 回调函数
@@ -149,7 +172,7 @@ class MarkManage:
 
     def set_mark_release_callback(self, mark_id, callback, *args):
         """
-        设置当释放指定ID的标记时触发的回调函数。
+        设置释放标记时触发的回调函数。
 
         :param mark_id: 关联的标记ID
         :param callback: 回调函数
@@ -168,7 +191,7 @@ class MarkManage:
         self.set_mark_position(mark_id, position)
         if status == "motion":
             self._mark_motion(position, mark_id)
-        if status == "release":
+        elif status == "release":
             self._mark_release(position, mark_id)
 
     def _mark_motion(self, position, mark_id):
@@ -185,7 +208,7 @@ class MarkManage:
             except ValueError:
                 print("请设置回调函数，方法：set_mark_motion_callback")
         else:
-            raise IndexError("mark_id不存在！")
+            raise IndexError("设置motion回调函数时出错，mark_id不存在！")
 
     def _mark_release(self, position, mark_id):
         """
@@ -201,19 +224,17 @@ class MarkManage:
             except ValueError:
                 print("请设置回调函数，方法：set_mark_release_callback")
         else:
-            raise IndexError("mark_id不存在！")
+            raise IndexError("设置release回调函数时出错，mark_id不存在！")
 
 
 # 使用示例
 if __name__ == "__main__":
     from tkinter import filedialog
-
     root = tk.Tk()
     oscilloscope = Oscilloscope(root)  # 创建Oscilloscope实例
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
     oscilloscope.grid(row=0, column=0, sticky="news")
-
 
     def open_filedialog():
         """
@@ -224,7 +245,7 @@ if __name__ == "__main__":
             title="选择 WAV 文件",
             filetypes=[("WAV files", "*.wav"), ("所有文件", "*.*")]
         )
-        if file_path is not None and file_path != "":
+        if file_path:
             oscilloscope.open_file(file_path)
             oscilloscope.create_mark("#fff", 10)  # 创建白色标记
             oscilloscope.create_mark("#f00", 10, 0.5)  # 创建红色标记，初始位置为音频的50%
@@ -232,11 +253,32 @@ if __name__ == "__main__":
             oscilloscope.set_mark_motion_callback(0, print_info, "id = 0")
             oscilloscope.set_mark_motion_callback(1, print_info, "id = 1")
 
-
     def print_info(p, info):
         print(f"{p:.2f} {info}")
 
+    def add_random_mark():
+        """
+        添加一个随机颜色和位置的标记。
+        """
+        import random
+        colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"]
+        position = random.random()
+        oscilloscope.create_mark(random.choice(colors), 10, position)
 
-    button = ttk.Button(root, text="点击打开文件", command=open_filedialog)  # 创建按钮
-    button.grid(row=1, column=0)
+    def delete_last_mark():
+        """
+        删除最后一个创建的标记。
+        """
+        if oscilloscope.mark_manage.mark_dict:
+            last_id = list(oscilloscope.mark_manage.mark_dict.keys())[-1]
+            oscilloscope.del_mark(last_id)
+
+    # 创建按钮以实现各种操作
+    button_frame = ttk.Frame(root)
+    button_frame.grid(row=1, column=0, pady=10)
+
+    ttk.Button(button_frame, text="打开文件", command=open_filedialog).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="添加随机标记", command=add_random_mark).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="删除最后一个标记", command=delete_last_mark).pack(side=tk.LEFT, padx=5)
+
     tk.mainloop()  # 运行主循环
