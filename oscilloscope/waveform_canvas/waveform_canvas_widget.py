@@ -6,17 +6,18 @@ class WaveformCanvasWidget(tk.Canvas):
     WaveformCanvas 类继承自 tk.Canvas，用于绘制音频波形。
     """
 
-    def __init__(self, master, controller):
+    def __init__(self, master, controller, foreground="#000", background="#4b704c"):
         """
         初始化 WaveformCanvas 实例。
 
         :param master: 父窗口或框架
         """
-        super().__init__(master, background="#4b704c", bd=0, highlightthickness=0)  # 设置背景颜色
+        super().__init__(master, background=background, bd=0, highlightthickness=0)  # 设置背景颜色
         self.resize_timer = None  # 存储定时器 ID
         self.controller = controller  # 存储控制器实例
         self.last_size = (self.winfo_width(), self.winfo_height())  # 存储上一次的画布大小
         self.bind("<Configure>", self.on_resize)  # 绑定画布大小调整事件
+        self.foreground = foreground
 
     def get_canvas_info(self):
         """
@@ -27,6 +28,23 @@ class WaveformCanvasWidget(tk.Canvas):
         self.update_idletasks()  # 更新待处理的任务
         return self.winfo_width(), self.winfo_height()
 
+    def set_style(self, background, foreground):
+        """
+        更新 Canvas 小部件的背景颜色以及带有 "waveform" 标签的所有对象的前景色。
+
+        :param background: 新的背景颜色
+        :param foreground: 新的前景颜色
+        """
+        # 更新实例属性，确保在后续操作中使用最新的颜色值
+        self.foreground = foreground
+
+        # 更新 Canvas 的背景颜色
+        self.config(background=background)
+
+        # 遍历所有带有 "waveform" 标签的对象并更新它们的填充颜色
+        for item_id in self.find_withtag("waveform"):
+            self.itemconfig(item_id, fill=self.foreground)
+
     def show_waveform(self, waveform_y1, waveform_y2):
         """
         绘制音频波形。
@@ -35,9 +53,15 @@ class WaveformCanvasWidget(tk.Canvas):
         :param waveform_y2: 波形的下半部分 Y 坐标列表
         """
         self.delete("waveform", "resize_info")  # 清除画布上的波形内容
+
         if len(waveform_y1) == len(waveform_y2):
             for i in range(len(waveform_y1)):
-                self.create_rectangle(i, waveform_y1[i], i, waveform_y2[i], fill="#000", tags="waveform")
+                x0 = i  # 矩形左上角的x坐标
+                y0 = waveform_y1[i]  # 矩形左上角的y坐标
+                x1 = i + 1  # 矩形右下角的x坐标，宽度为1个像素
+                y1 = waveform_y2[i]  # 矩形右下角的y坐标
+                # 设置矩形的填充颜色和无边框
+                self.create_rectangle(x0, y0, x1, y1, fill=self.foreground, outline="", tags="waveform")
         else:
             print("y1, y2长度不一致")  # 暂时这样写，实际上需要报错
 
@@ -48,7 +72,7 @@ class WaveformCanvasWidget(tk.Canvas):
         x = self.winfo_width() // 2
         y = self.winfo_height() // 2
         self.delete("resize_info")  # 清除画布上的调整信息
-        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill="#000", tags="resize_info", font=("Helvetica", 15))
+        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill=self.foreground, tags="resize_info", font=("Helvetica", 15))
 
     def on_resize(self, event):
         """

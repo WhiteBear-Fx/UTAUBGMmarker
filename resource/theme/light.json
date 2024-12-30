@@ -1,0 +1,12 @@
+{
+  "Oscilloscope": {
+    "waveform_canvas": {
+      "background": "#ddd",
+      "foreground": "#23519b"
+    },
+    "ruler": {
+      "background": "#23519b",
+      "foreground": "#ddd"
+    }
+  }
+}

@@ -1,6 +1,6 @@
-from waveform_canvas import WaveformCanvas
-from ruler import Ruler
-from mark import Mark
+from .waveform_canvas import WaveformCanvas
+from .ruler import Ruler
+from .mark import Mark
 
 import audio_model
 
@@ -14,26 +14,44 @@ class Oscilloscope(ttk.Frame):
     并提供加载音频文件、创建和管理标记的方法。
     """
 
-    def __init__(self, master=None):
+    def __init__(self, master, waveform_style: dict, ruler_style: dict):
         """
-        初始化Oscilloscope实例，设置布局并初始化子组件。
+        初始化Oscilloscope实例，配置布局并初始化子组件。
 
-        :param master: 父窗口或框架，默认为None
+        :param master: 父容器（如Tkinter窗口或框架），用于容纳本组件。
+        :type master: tkinter.Tk 或 tkinter.Frame 或 其他 Tkinter 容器
+
+        :param waveform_style: 一个包含波形画布样式的字典，应包括"background"（背景色）和"foreground"（前景色）键。
+        :type waveform_style: dict
+
+        :param ruler_style: 一个包含标尺样式的字典，应包括"background"（背景色）和"foreground"（前景色）键。
+        :type ruler_style: dict
+
+        波形画布和标尺控件将根据提供的样式信息进行创建和放置，并设置网格布局权重以适应窗口大小的变化。
         """
         super().__init__(master)
         self.mark_manage = MarkManage()
         self.audio_loader = audio_model.AudioLoader()
 
         # 创建并放置波形画布和标尺控件
-        self.waveform_canvas = WaveformCanvas(self, self.audio_loader)
+        self.waveform_canvas = WaveformCanvas(self, self.audio_loader, waveform_style["background"],
+                                              waveform_style["foreground"])
         self.waveform_canvas.grid(row=1, column=0, sticky="news")
 
-        self.ruler_widget = Ruler(self, self.audio_loader)
+        self.ruler_widget = Ruler(self, self.audio_loader, ruler_style["background"], ruler_style["foreground"])
         self.ruler_widget.grid(row=0, column=0, sticky="news")
 
         # 设置网格布局权重以适应窗口大小变化
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
+
+    def set_style(self, widget: str, style: dict):
+        if widget == "waveform_canvas":
+            self.waveform_canvas.set_style((style["background"], style["foreground"]))
+        elif widget == "ruler":
+            self.ruler_widget.set_style((style["background"], style["foreground"]))
+        else:
+            raise IndexError("指定控件不存在，目前可选项：\"waveform_canvas\",\"ruler\"。")
 
     def open_file(self, file_path):
         """
@@ -230,11 +248,18 @@ class MarkManage:
 # 使用示例
 if __name__ == "__main__":
     from tkinter import filedialog
+
     root = tk.Tk()
-    oscilloscope = Oscilloscope(root)  # 创建Oscilloscope实例
+    oscilloscope = Oscilloscope(root, {"background": "#4b704c",
+                                       "foreground": "#000"},
+                                {"background": "#4b704c",
+                                 "foreground": "#000"})  # 创建Oscilloscope实例
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
     oscilloscope.grid(row=0, column=0, sticky="news")
+
+    oscilloscope.set_style("ruler", ("#f00", "#fff"))
+
 
     def open_filedialog():
         """
@@ -253,8 +278,10 @@ if __name__ == "__main__":
             oscilloscope.set_mark_motion_callback(0, print_info, "id = 0")
             oscilloscope.set_mark_motion_callback(1, print_info, "id = 1")
 
+
     def print_info(p, info):
         print(f"{p:.2f} {info}")
+
 
     def add_random_mark():
         """
@@ -265,6 +292,7 @@ if __name__ == "__main__":
         position = random.random()
         oscilloscope.create_mark(random.choice(colors), 10, position)
 
+
     def delete_last_mark():
         """
         删除最后一个创建的标记。
@@ -272,6 +300,7 @@ if __name__ == "__main__":
         if oscilloscope.mark_manage.mark_dict:
             last_id = list(oscilloscope.mark_manage.mark_dict.keys())[-1]
             oscilloscope.del_mark(last_id)
+
 
     # 创建按钮以实现各种操作
     button_frame = ttk.Frame(root)
