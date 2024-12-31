@@ -20,14 +20,14 @@ class WaveformCanvasController:
         # 从音频加载器中获取与画布宽度相匹配的音频样本
         self.audio_data = self.audio_loader.get_audio_data(canvas_width)
 
-        if self.audio_data is not None and len(self.audio_data) == canvas_width:
+        if self.audio_data is not None :
             # 计算波形的中心线位置
             center_line = canvas_height // 2
 
             # 将音频数据映射到画布的高度范围内，使用 NumPy 向量化运算提高效率
             # audio_samples 的范围是 [-1, 1]，我们需要将其翻转并缩放到画布高度的一半
             scale_factor = (canvas_height / 2)
-            waveform_y = center_line - (self.audio_data * scale_factor).astype(int)
+            waveform_y = center_line - (self.audio_data * scale_factor)
 
             # 创建两个列表来分别存储波形的上下部分 Y 值
             waveform_top = np.clip(waveform_y, 0, center_line)  # 限制在画布上半部

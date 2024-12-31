@@ -58,13 +58,13 @@ class WaveformCanvasWidget(tk.Canvas):
             for i in range(len(waveform_y1)):
                 x0 = i  # 矩形左上角的x坐标
                 y0 = waveform_y1[i]  # 矩形左上角的y坐标
-                x1 = i + 2  # 矩形右下角的x坐标，宽度为2个像素
+                x1 = i + self.winfo_width() / len(waveform_y1) * 2  # 矩形右下角的x坐标，宽度自适应
                 y1 = waveform_y2[i]  # 矩形右下角的y坐标
                 # 设置矩形的填充颜色和无边框
                 self.create_rectangle(x0, y0, x1, y1, fill=self.foreground, outline="", tags="waveform")
                 self.tag_lower("waveform")
         else:
-            print("y1, y2长度不一致")  # 暂时这样写，实际上需要报错
+            raise ValueError("解析音频时出错，提取波形特征失败，极值对数量不对等")
 
     def draw_on_resize_info(self):
         """
