@@ -61,25 +61,30 @@ class Oscilloscope(ttk.Frame):
         """
         max_width = self.winfo_screenwidth()  # 获取屏幕最大宽度
         self.audio_loader.load_audio(file_path, max_width)
+        self.mark_manage.del_mark("all")
         self.waveform_canvas.draw_waveform()
         self.ruler_widget.draw_ruler()
 
-    def create_mark(self, color: str, width: int = 10, position: float = 0.0):
+    def create_mark(self, color: str, width: int = 10, position: float = 0.0) -> int:
         """
         在指定位置创建一个新的标记。
 
         :param color: 标记的颜色
         :param width: 标记的宽度，默认为10像素
         :param position: 标记的位置，默认为0秒（音频起始）
+        :return 标记的id
         """
         if self.audio_loader.audio_data is not None:
             ruler_mark_width = width
             waveform_canvas_mark_width = max(2, width // 10)
 
-            self.mark_manage.create_mark(
+            mark_id = self.mark_manage.create_mark(
                 [(self.ruler_widget.get_canvas(), ruler_mark_width),
                  (self.waveform_canvas.get_canvas(), waveform_canvas_mark_width)],
                 color, position)
+
+            return mark_id
+
         else:
             raise FileNotFoundError("创建标记出错，当前没有打开音频文件")
 
@@ -130,39 +135,52 @@ class MarkManage:
         self.mark_motion_callback = {}
         self.mark_id = 0
 
-    def create_mark(self, widget_list: list, color: str, position: float):
+    def create_mark(self, widget_list: list, color: str, position: float) -> int:
         """
         创建一个新的标记，并将其添加到提供的小部件中。
 
         :param widget_list: 包含要添加标记的小部件及其宽度的列表
         :param color: 标记的颜色
         :param position: 标记的位置
+        :return 该标记的id
         """
         mark_group = []
         for w in widget_list:
             mark = Mark(w[0], color, w[1], position)
-            mark.set_button_motion(self.change_position, self.mark_id, "motion")
-            mark.set_button_release(self.change_position, self.mark_id, "release")
+            mark.set_button_motion(self._change_position, self.mark_id, "motion")
+            mark.set_button_release(self._change_position, self.mark_id, "release")
             mark_group.append(mark)
         self.mark_dict[self.mark_id] = mark_group
+        mark_id = self.mark_id
         self.mark_id += 1
+        return mark_id
 
     def del_mark(self, mark_id):
         """
-        销毁并移除指定ID的标记。
+        销毁并移除指定ID的标记，传入"all"销毁所有标记。
 
-        :param mark_id: 要销毁的标记ID
+        :param mark_id: 要销毁的标记ID或者"all"
         """
-        if mark_id in self.mark_dict:
-            for m in self.mark_dict[mark_id]:
-                m.del_mark()
-            del self.mark_dict[mark_id]
-            if mark_id in self.mark_motion_callback:
-                del self.mark_motion_callback[mark_id]
-            if mark_id in self.mark_release_callback:
-                del self.mark_release_callback[mark_id]
+        if mark_id == "all":
+            # 创建一个临时列表以避免在迭代字典时修改字典的问题
+            keys_to_delete = list(self.mark_dict.keys())
+            for current_mark_id in keys_to_delete:
+                self._remove_single_mark(current_mark_id)
+            # 清空回调字典，因为所有标记都将被移除
+            self.mark_motion_callback.clear()
+            self.mark_release_callback.clear()
+        elif mark_id in self.mark_dict:
+            self._remove_single_mark(mark_id)
         else:
-            raise IndexError("尝试销毁不存在的标记：mark_id 不存在！")
+            raise IndexError(f"尝试销毁不存在的标记：{mark_id} 不存在！")
+
+    def _remove_single_mark(self, mark_id):
+        """内部方法用于移除单个标记"""
+        for m in self.mark_dict[mark_id]:
+            m.del_mark()
+        del self.mark_dict[mark_id]
+        self.mark_motion_callback.pop(mark_id, None)
+        self.mark_release_callback.pop(mark_id, None)
 
     def set_mark_position(self, mark_id, position):
         """
@@ -197,7 +215,7 @@ class MarkManage:
         """
         self.mark_release_callback[mark_id] = [callback, *args]
 
-    def change_position(self, position, mark_id, status):
+    def _change_position(self, position, mark_id, status):
         """
         当标记的位置改变时调用此方法，根据状态调用相应的回调函数。
 
@@ -272,11 +290,11 @@ if __name__ == "__main__":
         )
         if file_path:
             oscilloscope.open_file(file_path)
-            oscilloscope.create_mark("#fff", 10)  # 创建白色标记
-            oscilloscope.create_mark("#f00", 10, 0.5)  # 创建红色标记，初始位置为音频的50%
-            oscilloscope.set_mark_position(0, 1)  # 移动第一个标记到末尾
-            oscilloscope.set_mark_motion_callback(0, print_info, "id = 0")
-            oscilloscope.set_mark_motion_callback(1, print_info, "id = 1")
+            mark_w = oscilloscope.create_mark("#fff", 10)  # 创建白色标记
+            mark_r = oscilloscope.create_mark("#f00", 10, 0.5)  # 创建红色标记，初始位置为音频的50%
+            oscilloscope.set_mark_position(mark_w, 1)  # 移动第一个标记到末尾
+            oscilloscope.set_mark_motion_callback(mark_w, print_info, f"id = {mark_w}")
+            oscilloscope.set_mark_motion_callback(mark_r, print_info, f"id = {mark_r}")
 
 
     def print_info(p, info):
@@ -290,7 +308,8 @@ if __name__ == "__main__":
         import random
         colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#0ff"]
         position = random.random()
-        oscilloscope.create_mark(random.choice(colors), 10, position)
+        random_mark = oscilloscope.create_mark(random.choice(colors), 10, position)
+        oscilloscope.set_mark_motion_callback(random_mark, print_info, f"id = {random_mark}")
 
 
     def delete_last_mark():

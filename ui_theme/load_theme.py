@@ -80,11 +80,11 @@ if __name__ == "__main__":
         )
         if file_path:
             osc_w.open_file(file_path)
-            osc_w.create_mark("#fff", 10)  # 创建白色标记
-            osc_w.create_mark("#f00", 10, 0.5)  # 创建红色标记，初始位置为音频的50%
-            osc_w.set_mark_position(0, 1)  # 移动第一个标记到末尾
-            osc_w.set_mark_motion_callback(0, print_info, "id = 0")
-            osc_w.set_mark_motion_callback(1, print_info, "id = 1")
+            mark_1 = osc_w.create_mark("#fff", 10)  # 创建白色标记
+            mark_2 = osc_w.create_mark("#f00", 10, 0.8)  # 创建红色标记，初始位置为示波器的80%
+            osc_w.set_mark_position(mark_1, 0.2)  # 移动第一个标记到示波器的20%
+            osc_w.set_mark_motion_callback(mark_1, print_info, f"id = {mark_1}")
+            osc_w.set_mark_motion_callback(mark_2, print_info, f"id = {mark_2}")
 
 
     def print_info(p, info):

@@ -3,7 +3,7 @@ import tkinter as tk
 
 class MarkWidget:
     """
-    MarkWidget 是一个自定义的 Tkinter 小部件，设计用于在父容器内作为滑动条或标记来测量位置。
+    MarkWidget 是一个自定义的 Tkinter 小部件，设计用于在父容器（只能是canvas）内作为滑动条或标记来测量位置。
     它可以在用户拖动时跟随鼠标移动，并显示相对于父容器宽度的比例位置。
     """
 
@@ -28,6 +28,7 @@ class MarkWidget:
 
         self.mark_id = self.canvas.create_rectangle(0, 0, width,  self.canvas.winfo_height(),
                                                     fill=color, outline='')
+        self.canvas.lift(self.mark_id)
 
         self.canvas.tag_bind(self.mark_id, "<ButtonRelease-1>", self._button_release, add="+")
         self.canvas.tag_bind(self.mark_id, "<B1-Motion>", self._button_motion, add="+")
@@ -99,6 +100,7 @@ class MarkWidget:
         """
         if (event.width, event.height) != self.master_last_size:
             self.set_position(self.mark_position)
+            self.set_mark_top()
             self.master_last_size = (event.width, event.height)
 
     def _button_release(self, event):
@@ -149,12 +151,15 @@ class MarkWidget:
             raise TypeError("The provided callback is not callable.")
         self.motion_callback = [callback, *args]
 
+    def set_mark_top(self):
+        self.canvas.lift(self.mark_id)
+
 
 if __name__ == "__main__":
     import random
     root = tk.Tk()
-    canvas = tk.Canvas(root, width=400, height=50, bg="lightgray")
-    canvas.pack(fill=tk.BOTH)
+    my_canvas = tk.Canvas(root, width=400, height=50, bg="lightgray")
+    my_canvas.pack(fill=tk.BOTH)
 
     # List to keep track of MarkWidget instances
     marks = []
@@ -172,7 +177,7 @@ if __name__ == "__main__":
         # Create a new mark and add it to the list
         index = len(marks)
         color = "red" if index % 2 else "blue"  # Alternate colors for visibility
-        new_mark = MarkWidget(canvas, color, 10, random.random())
+        new_mark = MarkWidget(my_canvas, color, 10, random.random())
         new_mark.set_button_motion(on_move(index))
         new_mark.set_button_release(on_release)
         marks.append(new_mark)
