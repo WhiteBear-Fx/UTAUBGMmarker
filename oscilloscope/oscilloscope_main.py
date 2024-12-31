@@ -77,8 +77,8 @@ class Oscilloscope(ttk.Frame):
             waveform_canvas_mark_width = max(2, width // 10)
 
             self.mark_manage.create_mark(
-                [(self.ruler_widget, ruler_mark_width),
-                 (self.waveform_canvas, waveform_canvas_mark_width)],
+                [(self.ruler_widget.get_canvas(), ruler_mark_width),
+                 (self.waveform_canvas.get_canvas(), waveform_canvas_mark_width)],
                 color, position)
         else:
             raise FileNotFoundError("创建标记出错，当前没有打开音频文件")
@@ -140,8 +140,7 @@ class MarkManage:
         """
         mark_group = []
         for w in widget_list:
-            mark = Mark(w[0], color, w[1])
-            mark.set_position(position)
+            mark = Mark(w[0], color, w[1], position)
             mark.set_button_motion(self.change_position, self.mark_id, "motion")
             mark.set_button_release(self.change_position, self.mark_id, "release")
             mark_group.append(mark)
@@ -156,7 +155,7 @@ class MarkManage:
         """
         if mark_id in self.mark_dict:
             for m in self.mark_dict[mark_id]:
-                m.destroy()
+                m.del_mark()
             del self.mark_dict[mark_id]
             if mark_id in self.mark_motion_callback:
                 del self.mark_motion_callback[mark_id]
@@ -258,7 +257,8 @@ if __name__ == "__main__":
     root.rowconfigure(0, weight=1)
     oscilloscope.grid(row=0, column=0, sticky="news")
 
-    oscilloscope.set_style("ruler", ("#f00", "#fff"))
+    oscilloscope.set_style("ruler", {"background": "#4b704c",
+                                     "foreground": "#000"})
 
 
     def open_filedialog():
@@ -288,7 +288,7 @@ if __name__ == "__main__":
         添加一个随机颜色和位置的标记。
         """
         import random
-        colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"]
+        colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#0ff"]
         position = random.random()
         oscilloscope.create_mark(random.choice(colors), 10, position)
 

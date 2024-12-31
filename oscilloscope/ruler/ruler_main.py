@@ -20,3 +20,6 @@ class Ruler(ttk.Frame):
 
     def set_style(self, style: tuple):
         self.ruler_widget.set_style(*style)
+
+    def get_canvas(self):
+        return self.ruler_widget

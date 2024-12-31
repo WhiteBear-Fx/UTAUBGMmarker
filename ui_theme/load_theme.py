@@ -30,7 +30,9 @@ if __name__ == "__main__":
     root.title("Oscilloscope with Theme Switching")
 
     # 主题路径
+    # noinspection SpellCheckingInspection
     dark_theme_path = r"D:\Project\Pycharm\BGMmarker\resource\theme\dark.json".replace("\\", "/")
+    # noinspection SpellCheckingInspection
     light_theme_path = r"D:\Project\Pycharm\BGMmarker\resource\theme\light.json".replace("\\", "/")
 
     # 创建ThemeLoader实例，并应用“dark.json”主题文件中的样式

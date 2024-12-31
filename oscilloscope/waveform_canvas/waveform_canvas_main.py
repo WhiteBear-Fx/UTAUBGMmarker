@@ -26,3 +26,6 @@ class WaveformCanvas(ttk.Frame):
 
     def set_style(self, style: tuple):
         self.waveform_canvas.set_style(*style)
+
+    def get_canvas(self):
+        return self.waveform_canvas

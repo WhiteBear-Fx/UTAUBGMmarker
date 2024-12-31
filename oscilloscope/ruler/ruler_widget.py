@@ -23,15 +23,17 @@ class RulerWidget(tk.Canvas):
         # 绘制大刻度
         for i in range(len(l_interval_x_list)):
             # 长刻度线
-            self.create_line(l_interval_x_list[i], 0, l_interval_x_list[i], 20, fill=self.foreground, width=scale_width + 2)
+            self.create_line(l_interval_x_list[i], 0, l_interval_x_list[i], 20, fill=self.foreground,
+                             width=scale_width + 2, tags="ruler")
             # 刻度数值
             self.create_text(l_interval_x_list[i], 30, text=f"{l_interval_text_list[i]}",
-                             fill=self.foreground, font=("Helvetica", 10))
+                             fill=self.foreground, font=("Helvetica", 10), tags="ruler")
 
     def draw_ruler_s(self, s_interval_x_list, scale_width):
         # 绘制小刻度
         for i in range(len(s_interval_x_list)):
-            self.create_line(s_interval_x_list[i], 0, s_interval_x_list[i], 10, fill=self.foreground, width=scale_width)
+            self.create_line(s_interval_x_list[i], 0, s_interval_x_list[i], 10, fill=self.foreground, width=scale_width,
+                             tags="ruler")
 
     def on_resize(self, event):
         """
@@ -46,5 +48,5 @@ class RulerWidget(tk.Canvas):
     def set_style(self, background, foreground):
         self.foreground = foreground
         self.config(bg=background)
-        for i in self.find_all():
+        for i in self.find_withtag("ruler"):
             self.itemconfig(i, fill=self.foreground)

@@ -16,7 +16,7 @@ class RulerController:
         """
         self.time = self.module.get_duration()  # 更新音频总时长
         if self.time is not None:
-            self.view.delete("all")  # 清除所有绘图元素
+            self.view.delete("ruler")  # 清除所有绘图元素
             self.view.update_idletasks()  # 更新待处理的任务
             if self.scale_factor == "auto":
                 self.draw_ruler_auto()
