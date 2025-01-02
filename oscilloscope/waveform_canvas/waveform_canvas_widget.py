@@ -73,7 +73,8 @@ class WaveformCanvasWidget(tk.Canvas):
         x = self.winfo_width() // 2
         y = self.winfo_height() // 2
         self.delete("resize_info")  # 清除画布上的调整信息
-        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill=self.foreground, tags="resize_info", font=("Helvetica", 15))
+        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill=self.foreground, tags="resize_info",
+                         font=("Helvetica", 15))
 
     def on_resize(self, event):
         """

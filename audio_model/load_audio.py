@@ -201,6 +201,6 @@ class AudioLoader:
         if len(self.max_audio_data) > control_size:
             self.audio_data = self._downsample(self.max_audio_data, control_size)
         else:
-            # 暂时这样写，实际上这里应该报错
+            # 理论上这里应该插值，不过在这个项目这样写没问题
             self.audio_data = self.max_audio_data
         return self.audio_data

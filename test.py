@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 import oscilloscope as osc
-import ui_theme
+import json_loader
 
 
 if __name__ == "__main__":
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     light_theme_path = r"./resource/theme/light.json"
 
     # 创建ThemeLoader实例，并应用“dark.json”主题文件中的样式
-    theme_loader = ui_theme.ThemeLoader(dark_theme_path)
-    osc_style = theme_loader.get_style("Oscilloscope")
+    theme_loader = json_loader.JsonLoader(dark_theme_path)
+    osc_style = theme_loader.get_json("Oscilloscope")
 
     # 创建Oscilloscope组件，并将其放置在主窗口内
     osc_w = osc.Oscilloscope(root, waveform_style=osc_style["waveform_canvas"],
@@ -34,8 +34,8 @@ if __name__ == "__main__":
         new_theme_path = light_theme_path if current_theme_path == dark_theme_path else dark_theme_path
 
         try:
-            theme_loader.load_theme(new_theme_path)
-            new_osc_style = theme_loader.get_style("Oscilloscope")
+            theme_loader.load_json(new_theme_path)
+            new_osc_style = theme_loader.get_json("Oscilloscope")
             osc_new_style(new_osc_style)
 
             # 更新状态栏文本以反映新的主题

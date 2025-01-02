@@ -1,0 +1,10 @@
+{
+  "parameter_form": {
+    "line_number": "行号",
+    "time": "时间",
+    "rec": "收音",
+    "save": "保存",
+    "loop_index": "循环",
+    "note": "备注"
+  }
+}

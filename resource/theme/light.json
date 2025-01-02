@@ -8,5 +8,38 @@
       "background": "#23519b",
       "foreground": "#ddd"
     }
+  },
+  "parameter_form": {
+    "title_line": {
+      "background": "#23519b",
+      "foreground": "#ddd"
+    },
+    "info_line": {
+      "background": "#ddd",
+      "foreground": "#999",
+      "text": "#444",
+      "deeper_background": "#e0e0e0",
+      "highlight": "#23519b"
+    }
+  },
+  "general": {
+    "frame": {
+      "background": "#f7f7f7"
+    },
+    "label": {
+      "background": "#f7f7f7",
+      "foreground": "#444"
+    },
+    "entry": {
+      "background": "#f7f7f7",
+      "foreground": "#999",
+      "text": "#444",
+      "highlight": "#23519b"
+    },
+    "button": {
+      "background": "#999",
+      "foreground": "#999",
+      "text": "#444"
+    }
   }
 }

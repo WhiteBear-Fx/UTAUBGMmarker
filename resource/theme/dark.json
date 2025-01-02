@@ -1,5 +1,5 @@
 {
-  "Oscilloscope": {
+  "oscilloscope": {
     "waveform_canvas": {
       "background": "#4b704c",
       "foreground": "#000"
@@ -7,6 +7,39 @@
     "ruler": {
       "background": "#000",
       "foreground": "#4b704c"
+    }
+  },
+  "parameter_form": {
+    "title_line": {
+      "background": "#4b704c",
+      "foreground": "#000"
+    },
+    "info_line":{
+      "background": "#222",
+      "foreground": "#333",
+      "text": "#eee",
+      "deeper_background": "#181818",
+      "highlight": "#4b704c"
+    }
+  },
+  "general": {
+    "frame": {
+      "background": "#333"
+    },
+    "label": {
+      "background": "#333",
+      "foreground": "#eee"
+    },
+    "entry": {
+      "background": "#333",
+      "foreground": "#222",
+      "text": "#eee",
+      "highlight": "#4b704c"
+    },
+    "button": {
+      "background": "#444",
+      "foreground": "#444",
+      "text": "#eee"
     }
   }
 }
