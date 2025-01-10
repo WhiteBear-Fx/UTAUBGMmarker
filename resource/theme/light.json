@@ -1,5 +1,5 @@
 {
-  "Oscilloscope": {
+  "oscilloscope": {
     "waveform_canvas": {
       "background": "#ddd",
       "foreground": "#23519b"

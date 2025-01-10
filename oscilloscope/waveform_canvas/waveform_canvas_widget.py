@@ -56,25 +56,15 @@ class WaveformCanvasWidget(tk.Canvas):
 
         if len(waveform_y1) == len(waveform_y2):
             for i in range(len(waveform_y1)):
-                x0 = i  # 矩形左上角的x坐标
+                x0 = i * (self.winfo_width() / len(waveform_y1))  # 矩形左上角的x坐标
                 y0 = waveform_y1[i]  # 矩形左上角的y坐标
-                x1 = i + self.winfo_width() / len(waveform_y1) * 2  # 矩形右下角的x坐标，宽度自适应
+                x1 = x0 + self.winfo_width() / len(waveform_y1) * 2  # 矩形右下角的x坐标，宽度自适应
                 y1 = waveform_y2[i]  # 矩形右下角的y坐标
                 # 设置矩形的填充颜色和无边框
                 self.create_rectangle(x0, y0, x1, y1, fill=self.foreground, outline="", tags="waveform")
                 self.tag_lower("waveform")
         else:
             raise ValueError("解析音频时出错，提取波形特征失败，极值对数量不对等")
-
-    def draw_on_resize_info(self):
-        """
-        绘制画布大小调整信息。
-        """
-        x = self.winfo_width() // 2
-        y = self.winfo_height() // 2
-        self.delete("resize_info")  # 清除画布上的调整信息
-        self.create_text(x, y, text="绘制计划已变更，等待用户结束调整", fill=self.foreground, tags="resize_info",
-                         font=("Helvetica", 15))
 
     def on_resize(self, event):
         """

@@ -122,18 +122,20 @@ class ThemeLoader:
                        darkcolor=[("active", hl)],
                        bordercolor=[("active", hl)])
 
-    def get_info_line_form_canvas_style(self):
+    def get_canvas_style(self, widget: str) -> dict:
         """
         获取参数表单信息行的主题样式，主要用于手动设置无法通过ttk.Style配置的组件（例如画布）。
 
         :return: 包含信息行样式的字典。
         """
-        theme = self.json_loader.get_json("parameter_form")
-        return theme["info_line"]
+        theme = self.json_loader.get_json(widget)
+        print()
+        return theme
 
 
 if __name__ == "__main__":
     from parameter_form import ParameterFormWidget
+    from oscilloscope import Oscilloscope
     import tkinter as tk
 
     root = tk.Tk()
@@ -144,9 +146,15 @@ if __name__ == "__main__":
     t.set_theme(r"D:\Project\Pycharm\BGMmarker\resource\theme\dark.json")
 
     p = ParameterFormWidget(root)
-    p.pack(fill=tk.Y, expand=True)
+    p.pack(side=tk.LEFT, fill=tk.Y)
+
+    o = Oscilloscope(root, t.get_canvas_style("oscilloscope")["waveform_canvas"],
+                     t.get_canvas_style("oscilloscope")["ruler"])
+    o.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # 因为画布不能使用ttk.Style对象进行配置，所以这里获取信息行的主题样式，并手动设置给画布
-    p.set_style("info_line_form_canvas", t.get_info_line_form_canvas_style())
+    p.set_style("info_line_form_canvas", t.get_canvas_style("parameter_form")["info_line"])
+
+    # TODO: 这里的设置样式方法需要统一
 
     root.mainloop()
